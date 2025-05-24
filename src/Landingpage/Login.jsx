@@ -1,8 +1,8 @@
-// src/Login.js
+// src/Landingpage/Login.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, signInWithEmailAndPassword } from '../firebase';
-import { useGlobalContext } from './context/GlobalContext'; // Adjust the path as needed
+import { useGlobalContext } from '../context/GlobalContext'; // ✅ Fixed path
 import './Login.css';
 
 const Login = () => {
@@ -17,7 +17,6 @@ const Login = () => {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       const token = await user.getIdToken(); // ✅ get Firebase Auth token
-
       setAuthToken(token); // ✅ set the token in Axios headers and localStorage
       navigate('/dashboard');
     } catch (err) {
@@ -39,7 +38,6 @@ const Login = () => {
     <div className="login-form">
       <h2>Login</h2>
       {error && <p className="error-message">{error}</p>}
-
       <input
         type="email"
         placeholder="Enter Email"
@@ -54,13 +52,10 @@ const Login = () => {
         onChange={(e) => setPassword(e.target.value)}
         required
       />
-
       <button className="login-btn" onClick={handleLogin}>
         Login
       </button>
-
       <p>Don't have an account? <a href="/signup">Sign up</a></p>
-
       <button 
         onClick={handleloginguest} 
         style={{
