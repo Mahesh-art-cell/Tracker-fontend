@@ -7,12 +7,22 @@ import { menuItems } from "../../utils/menuItems";
 function Navigation() {
   const navigate = useNavigate();
 
+  // Get user info from localStorage
+  const user = JSON.parse(localStorage.getItem("user"));
+  const username = user?.name || "User"; // fallback if name is not available
+
+  const handleSignout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/");
+  };
+
   return (
     <NavStyled>
       <div className="user-con">
         <img src={userAvatar} alt="User avatar" />
         <div className="text">
-          <h2>Bhargavi</h2>
+          <h2>{username}</h2>
           <br />
           <br />
         </div>
@@ -34,7 +44,7 @@ function Navigation() {
       </ul>
       <div className="bottom-nav">
         <li>
-          <button onClick={() => navigate("/")}>Signout</button>
+          <button onClick={handleSignout}>Signout</button>
         </li>
       </div>
     </NavStyled>
@@ -59,6 +69,7 @@ const NavStyled = styled.nav`
     display: flex;
     align-items: center;
     gap: 1rem;
+
     img {
       width: 80px;
       height: 80px;
@@ -69,6 +80,7 @@ const NavStyled = styled.nav`
       padding: 0.2rem;
       box-shadow: 0px 1px 17px rgba(0, 0, 0, 0.06);
     }
+
     h2 {
       color: rgba(34, 34, 96, 1);
     }
@@ -133,7 +145,7 @@ const NavStyled = styled.nav`
     padding: 0;
 
     li {
-      list-style-type: none; 
+      list-style-type: none;
     }
 
     button {
