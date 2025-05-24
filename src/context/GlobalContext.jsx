@@ -11,14 +11,21 @@ export const GlobalProvider = ({ children }) => {
   const [expenses, setExpenses] = useState([]);
   const [error, setError] = useState(null);
 
-  // Set axios default Authorization header with token from localStorage
-  useEffect(() => {
-    const token = localStorage.getItem("token");
+  // Function to set the Authorization token in Axios
+  const setAuthToken = (token) => {
     if (token) {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      localStorage.setItem("token", token);
     } else {
       delete axios.defaults.headers.common["Authorization"];
+      localStorage.removeItem("token");
     }
+  };
+
+  // On initial load, set token from localStorage
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setAuthToken(token);
   }, []);
 
   const getIncomes = useCallback(async () => {
@@ -116,7 +123,7 @@ export const GlobalProvider = ({ children }) => {
     return history.slice(0, 3);
   }, [incomes, expenses]);
 
-  // Fetch initial data
+  // Initial load of incomes and expenses
   useEffect(() => {
     const fetchData = async () => {
       setError(null);
@@ -148,6 +155,7 @@ export const GlobalProvider = ({ children }) => {
         getExpenses,
         deleteExpense,
         transactionHistory,
+        setAuthToken, // ← Add this to context
       }}
     >
       {children}
