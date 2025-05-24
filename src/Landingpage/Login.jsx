@@ -1,34 +1,39 @@
-
 // src/Login.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, signInWithEmailAndPassword } from '../firebase';
-import './Login.css'
+import { useGlobalContext } from './context/globalContext'; // Adjust the path as needed
+import './Login.css';
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { setAuthToken } = useGlobalContext(); // ✅ get setAuthToken from context
 
   const handleLogin = async () => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      navigate('/Dashboard'); // Redirect to home page on successful login
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      const token = await user.getIdToken(); // ✅ get Firebase Auth token
+
+      setAuthToken(token); // ✅ set the token in Axios headers and localStorage
+      navigate('/dashboard');
     } catch (err) {
-      setError('Invalid Credentials! Try again.',err);
+      console.error("Login failed:", err);
+      setError('Invalid Credentials! Try again.');
     }
   };
+
   const handleloginguest = async () => {
     try {
-        // Simulating a guest login process (You can add authentication logic if needed)
-        console.log("Guest login successful!");
-
-        // Redirect to the dashboard
-        window.location.href = "/dashboard"; // Change the URL based on your routing
+      console.log("Guest login successful!");
+      window.location.href = "/dashboard";
     } catch (error) {
-        console.error("Guest login failed:", error);
+      console.error("Guest login failed:", error);
     }
-};
+  };
 
   return (
     <div className="login-form">
@@ -53,24 +58,22 @@ const Login = () => {
       <button className="login-btn" onClick={handleLogin}>
         Login
       </button>
-      {/* <button onClick={handleloginguest}>login guest</button> */}
 
       <p>Don't have an account? <a href="/signup">Sign up</a></p>
-      {/* <button onClick={handleloginguest} style={{color:"blue",alignContent:"center"}}>login guest</button> */}
-      <button 
-  onClick={handleloginguest} 
-  style={{
-    color: "blue", 
-    display: "block", 
-    margin: "20px auto", 
-    padding: "10px 20px",
-    fontSize: "16px",
-    textAlign: "center"
-  }}
->
-  Login Guest
-</button>
 
+      <button 
+        onClick={handleloginguest} 
+        style={{
+          color: "blue", 
+          display: "block", 
+          margin: "20px auto", 
+          padding: "10px 20px",
+          fontSize: "16px",
+          textAlign: "center"
+        }}
+      >
+        Login Guest
+      </button>
     </div>
   );
 };
