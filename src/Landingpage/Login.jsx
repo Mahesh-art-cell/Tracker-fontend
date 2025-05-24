@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, signInWithEmailAndPassword } from '../firebase';
-import { useGlobalContext } from './context/globalContext'; // Adjust the path as needed
+import { useGlobalContext } from './context/GlobalContext'; // Adjust the path as needed
 import './Login.css';
 
 const Login = () => {
