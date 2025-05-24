@@ -96,7 +96,8 @@ export const GlobalProvider = ({ children }) => {
     return expenses.reduce((acc, expense) => {
       const amount = Number(expense.amount) || 0;
       return acc + amount;
-    }, [expenses]);
+    }, 0);
+  }, [expenses]);
 
   const totalBalance = useCallback(() => {
     return totalIncome() - totalExpenses();
