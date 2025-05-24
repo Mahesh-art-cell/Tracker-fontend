@@ -1,0 +1,234 @@
+/*
+.contact-page {
+    font-family: 'Roboto', 'Open Sans', sans-serif;
+    color: #333;
+    line-height: 1.6;
+  }
+
+  .contact-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+
+  .contact-header {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+
+  .contact-header h1 {
+    font-size: 36px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 15px;
+  }
+
+  .subtitle {
+    font-size: 18px;
+    color: #666;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+
+  .contact-cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 60px;
+  }
+
+  .contact-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    padding: 30px;
+    width: 300px;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .contact-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  }
+
+  .card-icon {
+    width: 70px;
+    height: 70px;
+    line-height: 70px;
+    margin: 0 auto 20px;
+    background-color: #f5f7fa;
+    color: #2e86de;
+    border-radius: 50%;
+    font-size: 24px;
+  }
+
+  .contact-card h3 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #2c3e50;
+  }
+
+  .contact-card p {
+    color: #666;
+    margin-bottom: 25px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .contact-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #2e86de;
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.3s;
+  }
+
+  .contact-btn:hover {
+    background-color: #1c6cc9;
+  }
+
+  
+  .contact-form-section {
+    max-width: 800px;
+    margin: 0 auto 60px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    padding: 40px;
+  }
+
+  .contact-form-section h2 {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 30px;
+  }
+
+  .contact-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group:nth-child(3),
+  .form-group:nth-child(4) {
+    grid-column: 1 / 3;
+  }
+
+  label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #444;
+  }
+
+  input, textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 15px;
+    transition: border-color 0.3s;
+  }
+
+  input:focus, textarea:focus {
+    outline: none;
+    border-color: #2e86de;
+  }
+
+  .submit-btn {
+    grid-column: 1 / 3;
+    padding: 12px 25px;
+    background-color: #2e86de;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+  }
+
+  .submit-btn:hover {
+    background-color: #1c6cc9;
+  }
+
+
+  .contact-footer {
+    background-color: #f5f7fa;
+    padding: 60px 20px;
+  }
+
+  .office-locations {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .office-locations h2 {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 40px;
+  }
+
+  .locations-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+  }
+
+  .location {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    padding: 25px;
+    width: 300px;
+  }
+
+  .location h4 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 15px;
+  }
+
+  .location p {
+    margin: 5px 0;
+    color: #666;
+  }
+
+
+  @media (max-width: 768px) {
+    .contact-form {
+      grid-template-columns: 1fr;
+    }
+
+    .form-group:nth-child(3),
+    .form-group:nth-child(4) {
+      grid-column: 1;
+    }
+
+    .submit-btn {
+      grid-column: 1;
+    }
+
+    .contact-cards-container {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
