@@ -1,7 +1,7 @@
 import React, { useContext, useState, useCallback, useEffect } from "react";
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5000/api/v1/";
+const BASE_URL =  import.meta.env.VITE_API_URL;
 
 const GlobalContext = React.createContext();
 
