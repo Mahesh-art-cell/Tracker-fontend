@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { useGlobalContext } from "../../context/GlobalContext";
 import { InnerLayout } from "../../styles/Layouts";
 import ExpenseForm from "./ExpenseForm";
-import IncomeItem from "../IncomeItem/IncomeItem";
 import { Trash2 } from "lucide-react";
 import styled from "styled-components";
 
@@ -32,7 +31,6 @@ function Expenses() {
                 expense;
               return (
                 <ExpenseItemStyled key={_id}>
-
                   <div className="expense-content">
                     <h5>{title}</h5>
                     <div className="inner-content">
@@ -64,14 +62,7 @@ const ExpensesStyled = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  // background-color: red;
-  // padding-right: 6rem;
-  !important h1 {
-    color: var(--primary-color, #222260);
-    font-size: 2rem;
-    margin-bottom: 1rem;
-    font-weight: 600;
-  }
+  
   h1 {
     color: var(--primary-color);
     font-size: 2rem;
@@ -88,7 +79,6 @@ const ExpensesStyled = styled.div`
 
   .form-container {
     width: 100%;
-    //  background-color: red;
     margin-bottom: 2rem;
   }
 
@@ -98,7 +88,31 @@ const ExpensesStyled = styled.div`
     flex-direction: column;
     gap: 1rem;
     margin: 1rem 2rem;
-    // background-color: red;
+    
+    .no-data {
+      background: #fcf6f9;
+      border: 2px solid #ffffff;
+      box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      justify-content: center;
+      align-items: center;
+      height: 300px;
+      
+      h3 {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+      }
+      
+      p {
+        color: var(--primary-color);
+        opacity: 0.8;
+      }
+    }
   }
 
   @media (min-width: 992px) {
@@ -133,7 +147,6 @@ const TotalExpenseStyled = styled.div`
   h2 {
     font-size: 1.5rem;
     font-weight: 600;
-    // color: var(--primary-color, #222260);
   }
 
   span {
@@ -156,7 +169,6 @@ const ExpenseItemStyled = styled.div`
   gap: 1rem;
   transition: all 0.3s ease-in-out;
   width: 100%;
-  //   background-color: red;
 
   &:hover {
     transform: translateY(-3px);
@@ -183,8 +195,7 @@ const ExpenseItemStyled = styled.div`
     display: flex;
     flex-direction: column;
     gap: 0.2rem;
-    // padding: 3rem;
-    // background-color: red;
+    
     h5 {
       font-size: 1.3rem;
       color: var(--primary-color, #222260);
@@ -197,14 +208,11 @@ const ExpenseItemStyled = styled.div`
       align-items: center;
 
       .text {
-        // flex: 1;
         display: flex;
-        // flex-direction: column;
         gap: 1.5rem;
       }
 
       .expense-amount {
-        // white-space: nowrap;
         margin-top: 1rem;
         font-size: 1.2rem;
       }
@@ -222,7 +230,12 @@ const ExpenseItemStyled = styled.div`
     align-items: center;
     justify-content: center;
     color: #ff5757;
+    transition: all 0.3s ease-in-out;
     
+    &:hover {
+      background: rgba(255, 87, 87, 0.3);
+      transform: scale(1.1);
+    }
   }
 `;
 
