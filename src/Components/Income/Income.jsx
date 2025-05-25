@@ -6,11 +6,43 @@ import Form from "../Form/Form";
 import IncomeItem from "../IncomeItem/IncomeItem";
 
 function Income() {
-  const { incomes, getIncomes, deleteIncome, totalIncome } = useGlobalContext();
+  const { 
+    incomes, 
+    getIncomes, 
+    deleteIncome, 
+    totalIncome, 
+    loading, 
+    error, 
+    isAuthenticated,
+    guestLogin, 
+    clearError 
+  } = useGlobalContext();
 
   useEffect(() => {
-    getIncomes();
-  }, [getIncomes]);
+    // If not authenticated, try guest login first
+    if (!isAuthenticated) {
+      console.log("Not authenticated, attempting guest login...");
+      guestLogin();
+    }
+  }, [isAuthenticated, guestLogin]);
+
+  useEffect(() => {
+    // Only fetch incomes if authenticated
+    if (isAuthenticated) {
+      console.log("Authenticated, fetching incomes...");
+      getIncomes();
+    }
+  }, [isAuthenticated, getIncomes]);
+
+  // Handle authentication error
+  const handleRetry = () => {
+    clearError();
+    if (!isAuthenticated) {
+      guestLogin();
+    } else {
+      getIncomes();
+    }
+  };
 
   return (
     <IncomeStyled>
@@ -24,7 +56,28 @@ function Income() {
             <Form />
           </div>
           <div className="incomes">
-            {incomes.length > 0 ? (
+            {loading ? (
+              <div className="loading">
+                <h3>Loading income data...</h3>
+                <p>Please wait while we fetch your data...</p>
+              </div>
+            ) : error ? (
+              <div className="error">
+                <h3>Unable to Load Data</h3>
+                <p>{error}</p>
+                <button onClick={handleRetry} className="retry-btn">
+                  {!isAuthenticated ? "Try Guest Login" : "Retry"}
+                </button>
+              </div>
+            ) : !isAuthenticated ? (
+              <div className="auth-required">
+                <h3>Authentication Required</h3>
+                <p>Please wait while we authenticate you...</p>
+                <button onClick={guestLogin} className="auth-btn">
+                  Continue as Guest
+                </button>
+              </div>
+            ) : incomes && incomes.length > 0 ? (
               incomes.map((income) => (
                 <IncomeItem
                   key={income._id}
@@ -58,13 +111,13 @@ const IncomeStyled = styled.div`
   flex-direction: column;
   margin-right: 1rem !important;
   width: 100%;
-
+  
   h1 {
     color: var(--primary-color);
     font-size: 2rem;
     margin-bottom: 1rem;
   }
-
+  
   .total-income {
     display: flex;
     justify-content: space-between;
@@ -76,30 +129,30 @@ const IncomeStyled = styled.div`
     padding: 1rem 2rem;
     margin: 1rem 0;
     font-size: 1.8rem;
-
+    
     span {
       font-size: 2rem;
       font-weight: 800;
       color: var(--color-red, #ff5757);
     }
   }
-
+  
   .income-content {
     display: flex;
     gap: 2rem;
     width: 100%;
     max-width: 100%;
-
+    
     .form-container {
       flex: 1;
       min-width: 0;
     }
-
+    
     .incomes {
       flex: 2;
       min-width: 0;
-
-      .no-data {
+      
+      .no-data, .loading, .error, .auth-required {
         background: #fcf6f9;
         border: 2px solid #ffffff;
         box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
@@ -111,21 +164,84 @@ const IncomeStyled = styled.div`
         gap: 1rem;
         justify-content: center;
         align-items: center;
-        height: 300px;
-
+        min-height: 300px;
+        
         h3 {
           font-size: 1.5rem;
           color: var(--primary-color);
+          margin: 0;
         }
-
+        
         p {
           color: var(--primary-color);
           opacity: 0.8;
+          margin: 0;
+        }
+      }
+      
+      .error {
+        border-color: #ff5757;
+        background: #ffebee;
+        
+        h3 {
+          color: #ff5757;
+        }
+        
+        .retry-btn {
+          background: #ff5757;
+          color: white;
+          border: none;
+          padding: 0.8rem 1.5rem;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 1rem;
+          margin-top: 1rem;
+          transition: all 0.3s ease;
+          
+          &:hover {
+            background: #ff4444;
+            transform: translateY(-2px);
+          }
+        }
+      }
+      
+      .loading {
+        border-color: #2196f3;
+        background: #e3f2fd;
+        
+        h3 {
+          color: #2196f3;
+        }
+      }
+      
+      .auth-required {
+        border-color: #ff9800;
+        background: #fff3e0;
+        
+        h3 {
+          color: #ff9800;
+        }
+        
+        .auth-btn {
+          background: #ff9800;
+          color: white;
+          border: none;
+          padding: 0.8rem 1.5rem;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 1rem;
+          margin-top: 1rem;
+          transition: all 0.3s ease;
+          
+          &:hover {
+            background: #f57c00;
+            transform: translateY(-2px);
+          }
         }
       }
     }
   }
-
+  
   @media screen and (max-width: 768px) {
     .income-content {
       flex-direction: column;
