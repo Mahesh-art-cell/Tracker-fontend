@@ -6,12 +6,43 @@ import { Trash2 } from "lucide-react";
 import styled from "styled-components";
 
 function Expenses() {
-  const { expenses, getExpenses, deleteExpense, totalExpenses } =
-    useGlobalContext();
+  const { 
+    expenses, 
+    getExpenses, 
+    deleteExpense, 
+    totalExpenses, // This should be a value, not a function
+    loading, 
+    error, 
+    isAuthenticated,
+    guestLogin, 
+    clearError 
+  } = useGlobalContext();
 
   useEffect(() => {
-    getExpenses();
-  }, []);
+    // If not authenticated, try guest login first
+    if (!isAuthenticated) {
+      console.log("Not authenticated, attempting guest login...");
+      guestLogin();
+    }
+  }, [isAuthenticated, guestLogin]);
+
+  useEffect(() => {
+    // Only fetch expenses if authenticated
+    if (isAuthenticated) {
+      console.log("Authenticated, fetching expenses...");
+      getExpenses();
+    }
+  }, [isAuthenticated, getExpenses]);
+
+  // Handle authentication error
+  const handleRetry = () => {
+    clearError();
+    if (!isAuthenticated) {
+      guestLogin();
+    } else {
+      getExpenses();
+    }
+  };
 
   return (
     <ExpensesStyled>
@@ -19,38 +50,65 @@ function Expenses() {
         <h1>Expenses</h1>
         <TotalExpenseStyled>
           <h2>Total Expense:</h2>
-          <span>₹{totalExpenses()}</span>
+          <span>₹{totalExpenses}</span> {/* Fixed: removed () as it's a value, not function */}
         </TotalExpenseStyled>
         <div className="expense-content">
           <div className="form-container">
             <ExpenseForm />
           </div>
           <div className="expenses-list">
-            {expenses.map((expense) => {
-              const { _id, title, amount, date, category, description, type } =
-                expense;
-              return (
-                <ExpenseItemStyled key={_id}>
-                  <div className="expense-content">
-                    <h5>{title}</h5>
-                    <div className="inner-content">
-                      <div className="text">
-                        <p>{category}</p>
-                        <p>{new Date(date).toLocaleDateString()}</p>
-                        <p className="expense-amount">₹{amount}</p>
+            {loading ? (
+              <div className="loading">
+                <h3>Loading expense data...</h3>
+                <p>Please wait while we fetch your data...</p>
+              </div>
+            ) : error ? (
+              <div className="error">
+                <h3>Unable to Load Data</h3>
+                <p>{error}</p>
+                <button onClick={handleRetry} className="retry-btn">
+                  {!isAuthenticated ? "Try Guest Login" : "Retry"}
+                </button>
+              </div>
+            ) : !isAuthenticated ? (
+              <div className="auth-required">
+                <h3>Authentication Required</h3>
+                <p>Please wait while we authenticate you...</p>
+                <button onClick={guestLogin} className="auth-btn">
+                  Continue as Guest
+                </button>
+              </div>
+            ) : expenses && expenses.length > 0 ? (
+              expenses.map((expense) => {
+                const { _id, title, amount, date, category, description, type } = expense;
+                return (
+                  <ExpenseItemStyled key={_id}>
+                    <div className="expense-content">
+                      <h5>{title}</h5>
+                      <div className="inner-content">
+                        <div className="text">
+                          <p>{category}</p>
+                          <p>{new Date(date).toLocaleDateString()}</p>
+                          <p className="expense-amount">₹{amount}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div
-                    className="delete-btn"
-                    onClick={() => deleteExpense(_id)}
-                  >
-                    <Trash2 size={16} />
-                  </div>
-                </ExpenseItemStyled>
-              );
-            })}
+                    <div
+                      className="delete-btn"
+                      onClick={() => deleteExpense(_id)}
+                    >
+                      <Trash2 size={16} />
+                    </div>
+                  </ExpenseItemStyled>
+                );
+              })
+            ) : (
+              <div className="no-data">
+                <h3>No expense data found</h3>
+                <p>Add a new expense entry using the form on the left</p>
+              </div>
+            )}
           </div>
         </div>
       </InnerLayout>
@@ -89,7 +147,7 @@ const ExpensesStyled = styled.div`
     gap: 1rem;
     margin: 1rem 2rem;
     
-    .no-data {
+    .no-data, .loading, .error, .auth-required {
       background: #fcf6f9;
       border: 2px solid #ffffff;
       box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
@@ -101,16 +159,79 @@ const ExpensesStyled = styled.div`
       gap: 1rem;
       justify-content: center;
       align-items: center;
-      height: 300px;
+      min-height: 300px;
       
       h3 {
         font-size: 1.5rem;
         color: var(--primary-color);
+        margin: 0;
       }
       
       p {
         color: var(--primary-color);
         opacity: 0.8;
+        margin: 0;
+      }
+    }
+    
+    .error {
+      border-color: #ff5757;
+      background: #ffebee;
+      
+      h3 {
+        color: #ff5757;
+      }
+      
+      .retry-btn {
+        background: #ff5757;
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        margin-top: 1rem;
+        transition: all 0.3s ease;
+        
+        &:hover {
+          background: #ff4444;
+          transform: translateY(-2px);
+        }
+      }
+    }
+    
+    .loading {
+      border-color: #2196f3;
+      background: #e3f2fd;
+      
+      h3 {
+        color: #2196f3;
+      }
+    }
+    
+    .auth-required {
+      border-color: #ff9800;
+      background: #fff3e0;
+      
+      h3 {
+        color: #ff9800;
+      }
+      
+      .auth-btn {
+        background: #ff9800;
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        margin-top: 1rem;
+        transition: all 0.3s ease;
+        
+        &:hover {
+          background: #f57c00;
+          transform: translateY(-2px);
+        }
       }
     }
   }
