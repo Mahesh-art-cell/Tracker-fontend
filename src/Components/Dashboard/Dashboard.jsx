@@ -31,17 +31,17 @@ function Dashboard() {
         <div className="amount-summary">
           <SummaryCard
             title="Total Income"
-            value={totalIncome}       {/* <-- No parentheses */}
+            value={totalIncome}       {/* No parentheses */}
             color="#42AD00"
           />
           <SummaryCard
             title="Total Expense"
-            value={totalExpenses}     {/* <-- No parentheses */}
+            value={totalExpenses}     {/* No parentheses */}
             color="#D12C2C"
           />
           <SummaryCard
             title="Total Balance"
-            value={totalBalance}      {/* <-- No parentheses */}
+            value={totalBalance}      {/* No parentheses */}
             color="#2c7ad1"
             highlight
           />
@@ -110,14 +110,12 @@ const MinMaxCard = ({ title, data }) => {
 
 const DashboardStyled = styled.div`
   background-color: rgba(252, 246, 249, 0.78);
-  // min-height: 100vh;
   padding: 2rem;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   overflow: hidden;
   margin-right: 1rem;
-  // background-color: red;
 
   .dashboard-title {
     font-size: 2.5rem;
@@ -195,7 +193,7 @@ const DashboardStyled = styled.div`
       padding: 1.5rem;
       box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
       height: 100%;
-      // margin: 1rem;
+
       .section-title {
         font-size: 1.5rem;
         margin-bottom: 2rem;
