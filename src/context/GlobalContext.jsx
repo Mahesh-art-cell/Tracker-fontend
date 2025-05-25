@@ -2,7 +2,7 @@
 import React, { useContext, useState, useCallback, useEffect } from "react";
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_API_URL; // this should be https://expense-backend-1-ygpv.onrender.com/api/v1/
+const BASE_URL = import.meta.env.VITE_API_URL; // Your base API URL
 
 const GlobalContext = React.createContext();
 
@@ -63,7 +63,55 @@ export const GlobalProvider = ({ children }) => {
     }
   }, []);
 
-  // Add, delete, totals etc (same as before)...
+  // Calculate total income
+  const totalIncome = useCallback(() => {
+    return incomes.reduce((acc, curr) => acc + Number(curr.amount), 0);
+  }, [incomes]);
+
+  // Calculate total expenses
+  const totalExpenses = useCallback(() => {
+    return expenses.reduce((acc, curr) => acc + Number(curr.amount), 0);
+  }, [expenses]);
+
+  // Delete income by id
+  const deleteIncome = useCallback(async (id) => {
+    try {
+      await axios.delete(`${BASE_URL}delete-income/${id}`);
+      setIncomes((prev) => prev.filter((income) => income._id !== id));
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to delete income");
+    }
+  }, []);
+
+  // Delete expense by id
+  const deleteExpense = useCallback(async (id) => {
+    try {
+      await axios.delete(`${BASE_URL}delete-expense/${id}`);
+      setExpenses((prev) => prev.filter((expense) => expense._id !== id));
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to delete expense");
+    }
+  }, []);
+
+  // Add income (example)
+  const addIncome = useCallback(async (incomeData) => {
+    try {
+      const response = await axios.post(`${BASE_URL}add-income`, incomeData);
+      setIncomes((prev) => [...prev, response.data]);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to add income");
+    }
+  }, []);
+
+  // Add expense (example)
+  const addExpense = useCallback(async (expenseData) => {
+    try {
+      const response = await axios.post(`${BASE_URL}add-expense`, expenseData);
+      setExpenses((prev) => [...prev, response.data]);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to add expense");
+    }
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -86,7 +134,12 @@ export const GlobalProvider = ({ children }) => {
         setAuthToken,
         getIncomes,
         getExpenses,
-        // other methods ...
+        deleteIncome,
+        deleteExpense,
+        totalIncome,
+        totalExpenses,
+        addIncome,
+        addExpense,
       }}
     >
       {children}
@@ -96,6 +149,7 @@ export const GlobalProvider = ({ children }) => {
 
 export const useGlobalContext = () => {
   const context = useContext(GlobalContext);
-  if (!context) throw new Error("useGlobalContext must be used within a GlobalProvider");
+  if (!context)
+    throw new Error("useGlobalContext must be used within a GlobalProvider");
   return context;
 };
