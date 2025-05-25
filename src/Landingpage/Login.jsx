@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, signInWithEmailAndPassword } from '../firebase';
-import { useGlobalContext } from '../context/GlobalContext';
+import { useGlobalContext } from '../context/GlobalContext'; // Make sure this exists and works!
 import './Login.css';
 
 const Login = () => {
@@ -9,17 +9,22 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  // get setAuthToken function from your global context
   const { setAuthToken } = useGlobalContext();
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault();
     setError(''); // Clear previous errors
+
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      const token = await user.getIdToken();
-      setAuthToken(token);
-      navigate('/dashboard');
+      const token = await user.getIdToken();  // get Firebase auth token
+      
+      setAuthToken(token);  // save token globally (e.g., for API auth)
+      navigate('/dashboard');  // redirect after login
+
     } catch (err) {
       console.error("Login failed:", err);
       setError('Invalid Credentials! Try again.');
@@ -35,6 +40,7 @@ const Login = () => {
     <div className="login-form">
       <h2>Login</h2>
       {error && <p className="error-message">{error}</p>}
+
       <form onSubmit={handleLogin}>
         <input
           type="email"
@@ -44,6 +50,7 @@ const Login = () => {
           required
           aria-label="Email"
         />
+
         <input
           type="password"
           placeholder="Enter Password"
@@ -52,13 +59,14 @@ const Login = () => {
           required
           aria-label="Password"
         />
-        <button type="submit" className="login-btn">
-          Login
-        </button>
+
+        <button type="submit" className="login-btn">Login</button>
       </form>
+
       <p>
         Don't have an account? <a href="/signup">Sign up</a>
       </p>
+
       <button
         onClick={handleLoginGuest}
         style={{
