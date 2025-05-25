@@ -31,17 +31,17 @@ function Dashboard() {
         <div className="amount-summary">
           <SummaryCard
             title="Total Income"
-            value={totalIncome()}
+            value={totalIncome}       {/* <-- No parentheses */}
             color="#42AD00"
           />
           <SummaryCard
             title="Total Expense"
-            value={totalExpenses()}
+            value={totalExpenses}     {/* <-- No parentheses */}
             color="#D12C2C"
           />
           <SummaryCard
             title="Total Balance"
-            value={totalBalance()}
+            value={totalBalance}      {/* <-- No parentheses */}
             color="#2c7ad1"
             highlight
           />
