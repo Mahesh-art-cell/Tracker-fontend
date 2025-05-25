@@ -7,26 +7,50 @@ import { dollar } from "../../utils/Icons";
 import Chart from "../Chart/Chart";
 
 function Dashboard() {
+  // Add error boundary and safer destructuring
+  const context = useGlobalContext();
+  
+  // Safely destructure with fallbacks
   const {
-    totalExpenses,
-    incomes,
-    expenses,
-    totalIncome,
-    totalBalance,
+    totalExpenses = 0,
+    incomes = [],
+    expenses = [],
+    totalIncome = 0,
+    totalBalance = 0,
     getIncomes,
     getExpenses,
-  } = useGlobalContext();
+  } = context || {};
 
   useEffect(() => {
-    getIncomes();
-    getExpenses();
-  }, [getExpenses, getIncomes]);
+    // Add safety checks for functions
+    if (typeof getIncomes === 'function') {
+      getIncomes();
+    }
+    if (typeof getExpenses === 'function') {
+      getExpenses();
+    }
+  }, [getIncomes, getExpenses]);
 
-  const minIncome = incomes.length ? Math.min(...incomes.map(item => item.amount)) : 0;
-  const maxIncome = incomes.length ? Math.max(...incomes.map(item => item.amount)) : 0;
+  // Add safety checks for arrays before using map
+  const safeIncomes = Array.isArray(incomes) ? incomes : [];
+  const safeExpenses = Array.isArray(expenses) ? expenses : [];
 
-  const minExpense = expenses.length ? Math.min(...expenses.map(item => item.amount)) : 0;
-  const maxExpense = expenses.length ? Math.max(...expenses.map(item => item.amount)) : 0;
+  const minIncome = safeIncomes.length ? Math.min(...safeIncomes.map(item => Number(item?.amount) || 0)) : 0;
+  const maxIncome = safeIncomes.length ? Math.max(...safeIncomes.map(item => Number(item?.amount) || 0)) : 0;
+
+  const minExpense = safeExpenses.length ? Math.min(...safeExpenses.map(item => Number(item?.amount) || 0)) : 0;
+  const maxExpense = safeExpenses.length ? Math.max(...safeExpenses.map(item => Number(item?.amount) || 0)) : 0;
+
+  // Add loading state if context is not ready
+  if (!context) {
+    return (
+      <DashboardStyled>
+        <InnerLayout>
+          <div>Loading...</div>
+        </InnerLayout>
+      </DashboardStyled>
+    );
+  }
 
   return (
     <DashboardStyled>
@@ -37,19 +61,19 @@ function Dashboard() {
           <div className="summary-card">
             <h2>Total Income</h2>
             <p className="amount" style={{ color: "#42AD00" }}>
-              {dollar} {totalIncome}
+              {dollar} {totalIncome || 0}
             </p>
           </div>
           <div className="summary-card">
             <h2>Total Expense</h2>
             <p className="amount" style={{ color: "#D12C2C" }}>
-              {dollar} {totalExpenses}
+              {dollar} {totalExpenses || 0}
             </p>
           </div>
           <div className="summary-card highlight">
             <h2>Total Balance</h2>
             <p className="amount" style={{ color: "#2c7ad1" }}>
-              {dollar} {totalBalance}
+              {dollar} {totalBalance || 0}
             </p>
           </div>
         </div>
