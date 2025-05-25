@@ -2,7 +2,8 @@
 import React, { useContext, useState, useCallback, useEffect, useMemo } from "react";
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_API_URL;
+const BASE_URL = import.meta.env.VITE_API_URL || "https://expense-backend-8.onrender.com/api/v1/";
+
 const GlobalContext = React.createContext();
 
 export const GlobalProvider = ({ children }) => {
@@ -27,23 +28,26 @@ export const GlobalProvider = ({ children }) => {
     }
   }, []);
 
+  // Load token from localStorage on mount
   useEffect(() => {
     const token = localStorage.getItem("token");
-    console.log("Token loaded from localStorage:", token);
     if (token) {
       setAuthToken(token);
     }
   }, [setAuthToken]);
 
-  // Axios interceptors - optional but recommended
+  // Axios interceptors for handling 401 and token setting
   useEffect(() => {
-    const requestInterceptor = axios.interceptors.request.use((config) => {
-      const storedToken = localStorage.getItem("token");
-      if (storedToken) {
-        config.headers.Authorization = `Bearer ${storedToken}`;
-      }
-      return config;
-    });
+    const requestInterceptor = axios.interceptors.request.use(
+      (config) => {
+        const storedToken = localStorage.getItem("token");
+        if (storedToken) {
+          config.headers.Authorization = `Bearer ${storedToken}`;
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
 
     const responseInterceptor = axios.interceptors.response.use(
       (response) => response,
@@ -92,7 +96,7 @@ export const GlobalProvider = ({ children }) => {
     }
   }, []);
 
-  // Load incomes and expenses on auth
+  // Load incomes and expenses when authenticated
   useEffect(() => {
     if (isAuthenticated) {
       getIncomes();
@@ -103,7 +107,7 @@ export const GlobalProvider = ({ children }) => {
     }
   }, [isAuthenticated, getIncomes, getExpenses]);
 
-  // Totals
+  // Total calculations
   const totalIncome = useMemo(() => {
     return incomes.reduce((sum, i) => sum + Number(i.amount || 0), 0);
   }, [incomes]);
@@ -136,7 +140,54 @@ export const GlobalProvider = ({ children }) => {
     }
   }, []);
 
-  // Add expense, deleteExpense, logoutUser, clearError are similar and you can add them too
+  // Add expense
+  const addExpense = useCallback(async (expenseData) => {
+    if (!expenseData || typeof expenseData !== "object") return setError("Invalid expense data");
+    try {
+      const res = await axios.post(`${BASE_URL}add-expense`, expenseData);
+      if (res.data) setExpenses((prev) => [...prev, res.data]);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to add expense");
+    }
+  }, []);
+
+  // Delete expense
+  const deleteExpense = useCallback(async (id) => {
+    if (!id) return setError("Invalid expense ID");
+    try {
+      await axios.delete(`${BASE_URL}delete-expense/${id}`);
+      setExpenses((prev) => prev.filter((item) => item._id !== id));
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to delete expense");
+    }
+  }, []);
+
+  // Login user (assumes you have an API route /login returning token)
+  const loginUser = useCallback(async (credentials) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await axios.post(`${BASE_URL}login`, credentials);
+      const token = res.data?.token;
+      if (token) {
+        setAuthToken(token);
+      } else {
+        setError("Login failed: No token received");
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  }, [setAuthToken]);
+
+  // Logout user
+  const logoutUser = useCallback(() => {
+    setAuthToken(null);
+  }, [setAuthToken]);
+
+  // Clear error
+  const clearError = () => setError(null);
 
   return (
     <GlobalContext.Provider
@@ -154,7 +205,11 @@ export const GlobalProvider = ({ children }) => {
         getExpenses,
         addIncome,
         deleteIncome,
-        // addExpense, deleteExpense, loginUser, logoutUser, clearError can also be provided here
+        addExpense,
+        deleteExpense,
+        loginUser,
+        logoutUser,
+        clearError,
       }}
     >
       {children}
