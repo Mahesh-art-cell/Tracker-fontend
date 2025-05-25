@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, signInWithEmailAndPassword } from '../firebase';
-import { useGlobalContext } from '../context/GlobalContext'; // ✅ Fixed path
+import { useGlobalContext } from '../context/GlobalContext';
 import './Login.css';
 
 const Login = () => {
@@ -10,14 +10,15 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { setAuthToken } = useGlobalContext(); // ✅ get setAuthToken from context
+  const { setAuthToken } = useGlobalContext();
 
   const handleLogin = async () => {
+    setError(''); // Clear previous errors
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      const token = await user.getIdToken(); // ✅ get Firebase Auth token
-      setAuthToken(token); // ✅ set the token in Axios headers and localStorage
+      const token = await user.getIdToken();
+      setAuthToken(token);
       navigate('/dashboard');
     } catch (err) {
       console.error("Login failed:", err);
@@ -25,13 +26,9 @@ const Login = () => {
     }
   };
 
-  const handleloginguest = async () => {
-    try {
-      console.log("Guest login successful!");
-      window.location.href = "/dashboard";
-    } catch (error) {
-      console.error("Guest login failed:", error);
-    }
+  const handleLoginGuest = () => {
+    console.log("Guest login successful!");
+    navigate('/dashboard');
   };
 
   return (
@@ -44,6 +41,7 @@ const Login = () => {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
+        aria-label="Email"
       />
       <input
         type="password"
@@ -51,20 +49,26 @@ const Login = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
+        aria-label="Password"
       />
       <button className="login-btn" onClick={handleLogin}>
         Login
       </button>
-      <p>Don't have an account? <a href="/signup">Sign up</a></p>
-      <button 
-        onClick={handleloginguest} 
+      <p>
+        Don't have an account? <a href="/signup">Sign up</a>
+      </p>
+      <button
+        onClick={handleLoginGuest}
         style={{
-          color: "blue", 
-          display: "block", 
-          margin: "20px auto", 
+          color: "blue",
+          display: "block",
+          margin: "20px auto",
           padding: "10px 20px",
           fontSize: "16px",
-          textAlign: "center"
+          textAlign: "center",
+          cursor: "pointer",
+          background: "none",
+          border: "none"
         }}
       >
         Login Guest
