@@ -1,4 +1,4 @@
-// context/GlobalContext.js
+// context/GlobalContext.js - Updated with fixes
 import React, { useContext, useState, useCallback, useEffect, useMemo } from "react";
 import axios from "axios";
 
@@ -19,12 +19,14 @@ export const GlobalProvider = ({ children }) => {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       localStorage.setItem("token", token);
       setIsAuthenticated(true);
+      console.log("Token set successfully:", token.substring(0, 20) + "...");
     } else {
       delete axios.defaults.headers.common["Authorization"];
       localStorage.removeItem("token");
       setIsAuthenticated(false);
       setIncomes([]);
       setExpenses([]);
+      console.log("Token cleared");
     }
   }, []);
 
@@ -32,6 +34,7 @@ export const GlobalProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
+      console.log("Loading token from localStorage:", token.substring(0, 20) + "...");
       setAuthToken(token);
     }
   }, [setAuthToken]);
@@ -43,16 +46,27 @@ export const GlobalProvider = ({ children }) => {
         const storedToken = localStorage.getItem("token");
         if (storedToken) {
           config.headers.Authorization = `Bearer ${storedToken}`;
+          console.log("Request interceptor: Token added to request");
+        } else {
+          console.log("Request interceptor: No token found");
         }
         return config;
       },
-      (error) => Promise.reject(error)
+      (error) => {
+        console.error("Request interceptor error:", error);
+        return Promise.reject(error);
+      }
     );
 
     const responseInterceptor = axios.interceptors.response.use(
-      (response) => response,
+      (response) => {
+        console.log("Response interceptor: Success", response.status);
+        return response;
+      },
       (error) => {
+        console.error("Response interceptor error:", error.response?.status, error.response?.data);
         if (error.response?.status === 401) {
+          console.log("401 error detected, clearing auth token");
           setAuthToken(null);
           setError("Session expired. Please login again.");
         }
@@ -68,40 +82,58 @@ export const GlobalProvider = ({ children }) => {
 
   // Fetch incomes
   const getIncomes = useCallback(async () => {
+    if (!isAuthenticated) {
+      console.log("Not authenticated, skipping getIncomes");
+      return;
+    }
+    
     setLoading(true);
     setError(null);
     try {
+      console.log("Fetching incomes...");
       const res = await axios.get(`${BASE_URL}get-incomes`);
+      console.log("Incomes response:", res.data);
       const data = res.data?.incomes || res.data || [];
       setIncomes(Array.isArray(data) ? data : []);
     } catch (err) {
+      console.error("Error fetching incomes:", err);
       setError(err.response?.data?.message || "Failed to fetch incomes");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   // Fetch expenses
   const getExpenses = useCallback(async () => {
+    if (!isAuthenticated) {
+      console.log("Not authenticated, skipping getExpenses");
+      return;
+    }
+    
     setLoading(true);
     setError(null);
     try {
+      console.log("Fetching expenses...");
       const res = await axios.get(`${BASE_URL}get-expenses`);
+      console.log("Expenses response:", res.data);
       const data = res.data?.expenses || res.data || [];
       setExpenses(Array.isArray(data) ? data : []);
     } catch (err) {
+      console.error("Error fetching expenses:", err);
       setError(err.response?.data?.message || "Failed to fetch expenses");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   // Load incomes and expenses when authenticated
   useEffect(() => {
     if (isAuthenticated) {
+      console.log("User authenticated, fetching data...");
       getIncomes();
       getExpenses();
     } else {
+      console.log("User not authenticated, clearing data...");
       setIncomes([]);
       setExpenses([]);
     }
@@ -109,22 +141,53 @@ export const GlobalProvider = ({ children }) => {
 
   // Total calculations
   const totalIncome = useMemo(() => {
-    return incomes.reduce((sum, i) => sum + Number(i.amount || 0), 0);
+    const total = incomes.reduce((sum, i) => sum + Number(i.amount || 0), 0);
+    console.log("Total income calculated:", total);
+    return total;
   }, [incomes]);
 
   const totalExpenses = useMemo(() => {
-    return expenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+    const total = expenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+    console.log("Total expenses calculated:", total);
+    return total;
   }, [expenses]);
 
   const totalBalance = useMemo(() => totalIncome - totalExpenses, [totalIncome, totalExpenses]);
+
+  // Guest login function - ADD THIS
+  const guestLogin = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      console.log("Attempting guest login...");
+      const res = await axios.post(`${BASE_URL}guest-login`);
+      console.log("Guest login response:", res.data);
+      const token = res.data?.token;
+      if (token) {
+        setAuthToken(token);
+        console.log("Guest login successful");
+      } else {
+        setError("Guest login failed: No token received");
+        console.error("No token in guest login response");
+      }
+    } catch (err) {
+      console.error("Guest login error:", err);
+      setError(err.response?.data?.message || "Guest login failed");
+    } finally {
+      setLoading(false);
+    }
+  }, [setAuthToken]);
 
   // Delete income
   const deleteIncome = useCallback(async (id) => {
     if (!id) return setError("Invalid income ID");
     try {
+      console.log("Deleting income:", id);
       await axios.delete(`${BASE_URL}delete-income/${id}`);
       setIncomes((prev) => prev.filter((item) => item._id !== id));
+      console.log("Income deleted successfully");
     } catch (err) {
+      console.error("Error deleting income:", err);
       setError(err.response?.data?.message || "Failed to delete income");
     }
   }, []);
@@ -133,9 +196,15 @@ export const GlobalProvider = ({ children }) => {
   const addIncome = useCallback(async (incomeData) => {
     if (!incomeData || typeof incomeData !== "object") return setError("Invalid income data");
     try {
+      console.log("Adding income:", incomeData);
       const res = await axios.post(`${BASE_URL}add-income`, incomeData);
-      if (res.data) setIncomes((prev) => [...prev, res.data]);
+      console.log("Add income response:", res.data);
+      if (res.data) {
+        setIncomes((prev) => [...prev, res.data]);
+        console.log("Income added successfully");
+      }
     } catch (err) {
+      console.error("Error adding income:", err);
       setError(err.response?.data?.message || "Failed to add income");
     }
   }, []);
@@ -144,9 +213,15 @@ export const GlobalProvider = ({ children }) => {
   const addExpense = useCallback(async (expenseData) => {
     if (!expenseData || typeof expenseData !== "object") return setError("Invalid expense data");
     try {
+      console.log("Adding expense:", expenseData);
       const res = await axios.post(`${BASE_URL}add-expense`, expenseData);
-      if (res.data) setExpenses((prev) => [...prev, res.data]);
+      console.log("Add expense response:", res.data);
+      if (res.data) {
+        setExpenses((prev) => [...prev, res.data]);
+        console.log("Expense added successfully");
+      }
     } catch (err) {
+      console.error("Error adding expense:", err);
       setError(err.response?.data?.message || "Failed to add expense");
     }
   }, []);
@@ -155,26 +230,34 @@ export const GlobalProvider = ({ children }) => {
   const deleteExpense = useCallback(async (id) => {
     if (!id) return setError("Invalid expense ID");
     try {
+      console.log("Deleting expense:", id);
       await axios.delete(`${BASE_URL}delete-expense/${id}`);
       setExpenses((prev) => prev.filter((item) => item._id !== id));
+      console.log("Expense deleted successfully");
     } catch (err) {
+      console.error("Error deleting expense:", err);
       setError(err.response?.data?.message || "Failed to delete expense");
     }
   }, []);
 
-  // Login user (assumes you have an API route /login returning token)
+  // Login user
   const loginUser = useCallback(async (credentials) => {
     setLoading(true);
     setError(null);
     try {
+      console.log("Attempting user login...");
       const res = await axios.post(`${BASE_URL}login`, credentials);
+      console.log("Login response:", res.data);
       const token = res.data?.token;
       if (token) {
         setAuthToken(token);
+        console.log("User login successful");
       } else {
         setError("Login failed: No token received");
+        console.error("No token in login response");
       }
     } catch (err) {
+      console.error("Login error:", err);
       setError(err.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
@@ -183,11 +266,15 @@ export const GlobalProvider = ({ children }) => {
 
   // Logout user
   const logoutUser = useCallback(() => {
+    console.log("Logging out user...");
     setAuthToken(null);
   }, [setAuthToken]);
 
   // Clear error
-  const clearError = () => setError(null);
+  const clearError = () => {
+    console.log("Clearing error");
+    setError(null);
+  };
 
   return (
     <GlobalContext.Provider
@@ -208,6 +295,7 @@ export const GlobalProvider = ({ children }) => {
         addExpense,
         deleteExpense,
         loginUser,
+        guestLogin, // ADD THIS
         logoutUser,
         clearError,
       }}
