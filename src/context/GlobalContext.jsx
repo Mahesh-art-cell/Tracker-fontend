@@ -38,82 +38,152 @@ export const GlobalProvider = ({ children }) => {
   const getIncomes = useCallback(async () => {
     try {
       const response = await axios.get(`${BASE_URL}get-incomes`);
-      setIncomes(response.data?.incomes || response.data || []);
+      const data = response.data?.incomes || response.data || [];
+      setIncomes(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to fetch incomes");
+      console.error("Error fetching incomes:", err);
     }
   }, []);
 
   const getExpenses = useCallback(async () => {
     try {
       const response = await axios.get(`${BASE_URL}get-expenses`);
-      setExpenses(response.data?.expenses || response.data || []);
+      const data = response.data?.expenses || response.data || [];
+      setExpenses(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to fetch expenses");
+      console.error("Error fetching expenses:", err);
     }
   }, []);
 
-  // Fix: Use useMemo to return calculated values, not functions
+  // SAFE: Always return numbers, never functions - with extra safety
   const totalIncome = useMemo(() => {
-    return incomes.reduce((acc, cur) => acc + Number(cur.amount || 0), 0);
+    if (!Array.isArray(incomes) || incomes.length === 0) return 0;
+    return incomes.reduce((total, income) => {
+      if (!income || typeof income !== 'object') return total;
+      const amount = Number(income.amount) || 0;
+      return total + amount;
+    }, 0);
   }, [incomes]);
 
   const totalExpenses = useMemo(() => {
-    return expenses.reduce((acc, cur) => acc + Number(cur.amount || 0), 0);
+    if (!Array.isArray(expenses) || expenses.length === 0) return 0;
+    return expenses.reduce((total, expense) => {
+      if (!expense || typeof expense !== 'object') return total;
+      const amount = Number(expense.amount) || 0;
+      return total + amount;
+    }, 0);
   }, [expenses]);
 
+  // SAFE: Net balance calculation
+  const totalBalance = useMemo(() => {
+    return totalIncome - totalExpenses;
+  }, [totalIncome, totalExpenses]);
+
   const deleteIncome = useCallback(async (id) => {
+    if (!id) {
+      setError("Invalid income ID");
+      return;
+    }
     try {
       await axios.delete(`${BASE_URL}delete-income/${id}`);
-      setIncomes((prev) => prev.filter((i) => i._id !== id));
+      setIncomes((prev) => Array.isArray(prev) ? prev.filter((item) => item._id !== id) : []);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to delete income");
+      console.error("Error deleting income:", err);
     }
   }, []);
 
   const deleteExpense = useCallback(async (id) => {
+    if (!id) {
+      setError("Invalid expense ID");
+      return;
+    }
     try {
       await axios.delete(`${BASE_URL}delete-expense/${id}`);
-      setExpenses((prev) => prev.filter((e) => e._id !== id));
+      setExpenses((prev) => Array.isArray(prev) ? prev.filter((item) => item._id !== id) : []);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to delete expense");
+      console.error("Error deleting expense:", err);
     }
   }, []);
 
   const addIncome = useCallback(async (incomeData) => {
+    if (!incomeData || typeof incomeData !== 'object') {
+      setError("Invalid income data");
+      return;
+    }
     try {
-      const res = await axios.post(`${BASE_URL}add-income`, incomeData);
-      setIncomes((prev) => [...prev, res.data]);
+      const response = await axios.post(`${BASE_URL}add-income`, incomeData);
+      if (response.data) {
+        setIncomes((prev) => Array.isArray(prev) ? [...prev, response.data] : [response.data]);
+      }
     } catch (err) {
       setError(err.response?.data?.message || "Failed to add income");
+      console.error("Error adding income:", err);
     }
   }, []);
 
   const addExpense = useCallback(async (expenseData) => {
+    if (!expenseData || typeof expenseData !== 'object') {
+      setError("Invalid expense data");
+      return;
+    }
     try {
-      const res = await axios.post(`${BASE_URL}add-expense`, expenseData);
-      setExpenses((prev) => [...prev, res.data]);
+      const response = await axios.post(`${BASE_URL}add-expense`, expenseData);
+      if (response.data) {
+        setExpenses((prev) => Array.isArray(prev) ? [...prev, response.data] : [response.data]);
+      }
     } catch (err) {
       setError(err.response?.data?.message || "Failed to add expense");
+      console.error("Error adding expense:", err);
     }
   }, []);
 
+  // SAFE: Clear error function
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
+  // Create stable context value to prevent unnecessary re-renders
+  const contextValue = useMemo(() => ({
+    // Data (always arrays)
+    incomes: Array.isArray(incomes) ? incomes : [],
+    expenses: Array.isArray(expenses) ? expenses : [],
+    
+    // Calculated values (always numbers, NEVER functions)
+    totalIncome,
+    totalExpenses,
+    
+    // Action functions
+    getIncomes,
+    getExpenses,
+    addIncome,
+    addExpense,
+    deleteIncome,
+    deleteExpense,
+    
+    // Utility
+    clearError,
+    error,
+  }), [
+    incomes, 
+    expenses, 
+    totalIncome, 
+    totalExpenses,
+    getIncomes, 
+    getExpenses, 
+    addIncome, 
+    addExpense, 
+    deleteIncome, 
+    deleteExpense,
+    clearError,
+    error
+  ]);
+
   return (
-    <GlobalContext.Provider
-      value={{
-        incomes,
-        expenses,
-        getIncomes,
-        getExpenses,
-        deleteIncome,
-        deleteExpense,
-        addIncome,
-        addExpense,
-        totalIncome, // Now this is a number, not a function
-        totalExpenses, // Now this is a number, not a function
-        error,
-      }}
-    >
+    <GlobalContext.Provider value={contextValue}>
       {children}
     </GlobalContext.Provider>
   );
