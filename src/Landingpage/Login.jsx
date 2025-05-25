@@ -1,4 +1,3 @@
-// src/Landingpage/Login.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, signInWithEmailAndPassword } from '../firebase';
@@ -12,7 +11,8 @@ const Login = () => {
   const navigate = useNavigate();
   const { setAuthToken } = useGlobalContext();
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault(); // Prevent default form submission
     setError(''); // Clear previous errors
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -35,25 +35,27 @@ const Login = () => {
     <div className="login-form">
       <h2>Login</h2>
       {error && <p className="error-message">{error}</p>}
-      <input
-        type="email"
-        placeholder="Enter Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-        aria-label="Email"
-      />
-      <input
-        type="password"
-        placeholder="Enter Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-        aria-label="Password"
-      />
-      <button className="login-btn" onClick={handleLogin}>
-        Login
-      </button>
+      <form onSubmit={handleLogin}>
+        <input
+          type="email"
+          placeholder="Enter Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          aria-label="Email"
+        />
+        <input
+          type="password"
+          placeholder="Enter Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          aria-label="Password"
+        />
+        <button type="submit" className="login-btn">
+          Login
+        </button>
+      </form>
       <p>
         Don't have an account? <a href="/signup">Sign up</a>
       </p>
