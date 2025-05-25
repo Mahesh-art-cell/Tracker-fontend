@@ -1,5 +1,5 @@
 // GlobalContext.js
-import React, { useContext, useState, useCallback, useEffect } from "react";
+import React, { useContext, useState, useCallback, useEffect, useMemo } from "react";
 import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
@@ -53,12 +53,12 @@ export const GlobalProvider = ({ children }) => {
     }
   }, []);
 
-  // Fix: Ensure these always return functions
-  const totalIncome = useCallback(() => {
+  // Fix: Use useMemo to return calculated values, not functions
+  const totalIncome = useMemo(() => {
     return incomes.reduce((acc, cur) => acc + Number(cur.amount || 0), 0);
   }, [incomes]);
 
-  const totalExpenses = useCallback(() => {
+  const totalExpenses = useMemo(() => {
     return expenses.reduce((acc, cur) => acc + Number(cur.amount || 0), 0);
   }, [expenses]);
 
@@ -98,9 +98,6 @@ export const GlobalProvider = ({ children }) => {
     }
   }, []);
 
-  // Fix: Remove the problematic useEffect that might cause circular dependencies
-  // Components will call getIncomes/getExpenses directly
-
   return (
     <GlobalContext.Provider
       value={{
@@ -112,8 +109,8 @@ export const GlobalProvider = ({ children }) => {
         deleteExpense,
         addIncome,
         addExpense,
-        totalIncome,
-        totalExpenses,
+        totalIncome, // Now this is a number, not a function
+        totalExpenses, // Now this is a number, not a function
         error,
       }}
     >
