@@ -137,6 +137,7 @@ export const GlobalProvider = ({ children }) => {
       }
     } catch (err) {
       setError(err.response?.data?.message || "Failed to add expense");
+      console.error("Error adding expense");
       console.error("Error adding expense:", err);
     }
   }, []);
@@ -155,6 +156,7 @@ export const GlobalProvider = ({ children }) => {
     // Calculated values (always numbers, NEVER functions)
     totalIncome,
     totalExpenses,
+    totalBalance, // ← THIS WAS MISSING!
     
     // Action functions
     getIncomes,
@@ -172,6 +174,7 @@ export const GlobalProvider = ({ children }) => {
     expenses, 
     totalIncome, 
     totalExpenses,
+    totalBalance, // ← ADD THIS TO DEPENDENCIES TOO!
     getIncomes, 
     getExpenses, 
     addIncome, 
