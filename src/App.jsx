@@ -37,6 +37,7 @@
 
 // export default App;
 
+// src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Tracker from "./Tracker";
 import Dashboard from "./Components/Dashboard/Dashboard";
@@ -53,9 +54,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-
         <Route path="/dashboard" element={<Tracker />}>
-          <Route index element={<Dashboard />} />{" "}
+          <Route index element={<Dashboard />} />
           <Route path="transactions" element={<Dashboard />} />
           <Route path="incomes" element={<Income />} />
           <Route path="expenses" element={<Expenses />} />
@@ -66,3 +66,4 @@ function App() {
 }
 
 export default App;
+
