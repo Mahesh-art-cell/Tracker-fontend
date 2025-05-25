@@ -58,11 +58,13 @@ const IncomeStyled = styled.div`
   flex-direction: column;
   margin-right: 1rem !important;
   width: 100%;
+
   h1 {
     color: var(--primary-color);
     font-size: 2rem;
     margin-bottom: 1rem;
   }
+
   .total-income {
     display: flex;
     justify-content: space-between;
@@ -74,24 +76,29 @@ const IncomeStyled = styled.div`
     padding: 1rem 2rem;
     margin: 1rem 0;
     font-size: 1.8rem;
+
     span {
       font-size: 2rem;
       font-weight: 800;
       color: var(--color-red, #ff5757);
     }
   }
+
   .income-content {
     display: flex;
     gap: 2rem;
     width: 100%;
     max-width: 100%;
+
     .form-container {
       flex: 1;
       min-width: 0;
     }
+
     .incomes {
       flex: 2;
       min-width: 0;
+
       .no-data {
         background: #fcf6f9;
         border: 2px solid #ffffff;
@@ -105,10 +112,12 @@ const IncomeStyled = styled.div`
         justify-content: center;
         align-items: center;
         height: 300px;
+
         h3 {
           font-size: 1.5rem;
           color: var(--primary-color);
         }
+
         p {
           color: var(--primary-color);
           opacity: 0.8;
@@ -116,6 +125,12 @@ const IncomeStyled = styled.div`
       }
     }
   }
+
   @media screen and (max-width: 768px) {
     .income-content {
       flex-direction: column;
+    }
+  }
+`;
+
+export default Income;
