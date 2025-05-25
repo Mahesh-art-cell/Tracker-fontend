@@ -22,41 +22,45 @@ function Dashboard() {
     getExpenses();
   }, [getExpenses, getIncomes]);
 
+  const minIncome = incomes.length ? Math.min(...incomes.map(item => item.amount)) : 0;
+  const maxIncome = incomes.length ? Math.max(...incomes.map(item => item.amount)) : 0;
+
+  const minExpense = expenses.length ? Math.min(...expenses.map(item => item.amount)) : 0;
+  const maxExpense = expenses.length ? Math.max(...expenses.map(item => item.amount)) : 0;
+
   return (
     <DashboardStyled>
       <InnerLayout>
         <h1 className="dashboard-title">DASHBOARD</h1>
 
-        {/* Total Income, Expense, Balance Summary (side by side) */}
         <div className="amount-summary">
-          <SummaryCard
-            title="Total Income"
-            value={totalIncome}       {/* No parentheses */}
-            color="#42AD00"
-          />
-          <SummaryCard
-            title="Total Expense"
-            value={totalExpenses}     {/* No parentheses */}
-            color="#D12C2C"
-          />
-          <SummaryCard
-            title="Total Balance"
-            value={totalBalance}      {/* No parentheses */}
-            color="#2c7ad1"
-            highlight
-          />
+          <div className="summary-card">
+            <h2>Total Income</h2>
+            <p className="amount" style={{ color: "#42AD00" }}>
+              {dollar} {totalIncome}
+            </p>
+          </div>
+          <div className="summary-card">
+            <h2>Total Expense</h2>
+            <p className="amount" style={{ color: "#D12C2C" }}>
+              {dollar} {totalExpenses}
+            </p>
+          </div>
+          <div className="summary-card highlight">
+            <h2>Total Balance</h2>
+            <p className="amount" style={{ color: "#2c7ad1" }}>
+              {dollar} {totalBalance}
+            </p>
+          </div>
         </div>
 
         <div className="stats-container">
-          {/* Left Section - History */}
           <div className="left-section">
             <div className="history-section">
               <h2 className="section-title">Recent History</h2>
               <History />
             </div>
           </div>
-
-          {/* Right Section - Chart */}
           <div className="right-section">
             <div className="chart-container">
               <Chart />
@@ -64,56 +68,41 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Min/Max Section */}
         <div className="min-max-section">
-          <MinMaxCard title="Income" data={incomes} />
-          <MinMaxCard title="Expense" data={expenses} />
+          <div className="min-max-card">
+            <h2 className="salary-title">
+              <span className="min-label">Min</span>
+              <span className="title-label">Income</span>
+              <span className="max-label">Max</span>
+            </h2>
+            <div className="salary-item">
+              <p className="min-value">₹{minIncome}</p>
+              <p className="max-value">₹{maxIncome}</p>
+            </div>
+          </div>
+
+          <div className="min-max-card">
+            <h2 className="salary-title">
+              <span className="min-label">Min</span>
+              <span className="title-label">Expense</span>
+              <span className="max-label">Max</span>
+            </h2>
+            <div className="salary-item">
+              <p className="min-value">₹{minExpense}</p>
+              <p className="max-value">₹{maxExpense}</p>
+            </div>
+          </div>
         </div>
       </InnerLayout>
     </DashboardStyled>
   );
 }
 
-// Summary Card Component
-const SummaryCard = ({ title, value, color, highlight }) => (
-  <div className={`summary-card ${highlight ? "highlight" : ""}`}>
-    <h2>{title}</h2>
-    <p className="amount" style={{ color }}>
-      {dollar} {value}
-    </p>
-  </div>
-);
-
-// Min/Max Card Component
-const MinMaxCard = ({ title, data }) => {
-  const minAmount = data.length
-    ? Math.min(...data.map((item) => item.amount))
-    : 0;
-  const maxAmount = data.length
-    ? Math.max(...data.map((item) => item.amount))
-    : 0;
-
-  return (
-    <div className="min-max-card">
-      <h2 className="salary-title">
-        <span className="min-label">Min</span>
-        <span className="title-label">{title}</span>
-        <span className="max-label">Max</span>
-      </h2>
-      <div className="salary-item">
-        <p className="min-value">₹{minAmount}</p>
-        <p className="max-value">₹{maxAmount}</p>
-      </div>
-    </div>
-  );
-};
-
 const DashboardStyled = styled.div`
   background-color: rgba(252, 246, 249, 0.78);
   padding: 2rem;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
   overflow: hidden;
   margin-right: 1rem;
 
@@ -192,7 +181,6 @@ const DashboardStyled = styled.div`
       border-radius: 20px;
       padding: 1.5rem;
       box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
-      height: 100%;
 
       .section-title {
         font-size: 1.5rem;
@@ -207,6 +195,13 @@ const DashboardStyled = styled.div`
 
     @media screen and (min-width: 768px) {
       width: 60%;
+    }
+
+    .chart-container {
+      background: white;
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
     }
   }
 
@@ -242,25 +237,26 @@ const DashboardStyled = styled.div`
     font-weight: 600;
     margin-bottom: 1.5rem;
     gap: 1rem;
-  }
 
-  .salary-title span {
-    flex: 1;
-    color: red;
-    text-align: center;
-  }
+    span {
+      flex: 1;
+      text-align: center;
+    }
 
-  .min-label {
-    text-align: left;
-  }
+    .min-label {
+      text-align: left;
+      color: red;
+    }
 
-  .title-label {
-    font-weight: bold;
-    color: #2c3e50;
-  }
+    .title-label {
+      font-weight: bold;
+      color: #2c3e50;
+    }
 
-  .max-label {
-    text-align: right;
+    .max-label {
+      text-align: right;
+      color: red;
+    }
   }
 
   .salary-item {
@@ -270,8 +266,6 @@ const DashboardStyled = styled.div`
     display: flex;
     justify-content: space-between;
     box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
-    overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
 
     &:hover {
       transform: translateY(-5px);
