@@ -57,7 +57,7 @@ export const GlobalProvider = ({ children }) => {
     }
   }, []);
 
-  // SAFE: Always return numbers, never functions - with extra safety
+  // Calculate total income
   const totalIncome = useMemo(() => {
     if (!Array.isArray(incomes) || incomes.length === 0) return 0;
     return incomes.reduce((total, income) => {
@@ -67,6 +67,7 @@ export const GlobalProvider = ({ children }) => {
     }, 0);
   }, [incomes]);
 
+  // Calculate total expenses
   const totalExpenses = useMemo(() => {
     if (!Array.isArray(expenses) || expenses.length === 0) return 0;
     return expenses.reduce((total, expense) => {
@@ -76,7 +77,7 @@ export const GlobalProvider = ({ children }) => {
     }, 0);
   }, [expenses]);
 
-  // SAFE: Net balance calculation
+  // Calculate total balance
   const totalBalance = useMemo(() => {
     return totalIncome - totalExpenses;
   }, [totalIncome, totalExpenses]);
@@ -137,26 +138,24 @@ export const GlobalProvider = ({ children }) => {
       }
     } catch (err) {
       setError(err.response?.data?.message || "Failed to add expense");
-      console.error("Error adding expense");
       console.error("Error adding expense:", err);
     }
   }, []);
 
-  // SAFE: Clear error function
   const clearError = useCallback(() => {
     setError(null);
   }, []);
 
-  // Create stable context value to prevent unnecessary re-renders
+  // Context value with ALL needed properties
   const contextValue = useMemo(() => ({
-    // Data (always arrays)
+    // Data arrays
     incomes: Array.isArray(incomes) ? incomes : [],
     expenses: Array.isArray(expenses) ? expenses : [],
     
-    // Calculated values (always numbers, NEVER functions)
+    // Calculated values (FIXED: Added totalBalance)
     totalIncome,
     totalExpenses,
-    totalBalance, // ← THIS WAS MISSING!
+    totalBalance, // THIS WAS MISSING!
     
     // Action functions
     getIncomes,
@@ -174,7 +173,7 @@ export const GlobalProvider = ({ children }) => {
     expenses, 
     totalIncome, 
     totalExpenses,
-    totalBalance, // ← ADD THIS TO DEPENDENCIES TOO!
+    totalBalance, // ADDED to dependencies
     getIncomes, 
     getExpenses, 
     addIncome, 
