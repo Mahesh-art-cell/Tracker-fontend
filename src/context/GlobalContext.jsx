@@ -57,27 +57,22 @@ export const GlobalProvider = ({ children }) => {
     }
   }, []);
 
-  // Calculate total income
   const totalIncome = useMemo(() => {
     if (!Array.isArray(incomes) || incomes.length === 0) return 0;
     return incomes.reduce((total, income) => {
-      if (!income || typeof income !== 'object') return total;
-      const amount = Number(income.amount) || 0;
+      const amount = Number(income?.amount) || 0;
       return total + amount;
     }, 0);
   }, [incomes]);
 
-  // Calculate total expenses
   const totalExpenses = useMemo(() => {
     if (!Array.isArray(expenses) || expenses.length === 0) return 0;
     return expenses.reduce((total, expense) => {
-      if (!expense || typeof expense !== 'object') return total;
-      const amount = Number(expense.amount) || 0;
+      const amount = Number(expense?.amount) || 0;
       return total + amount;
     }, 0);
   }, [expenses]);
 
-  // Calculate total balance
   const totalBalance = useMemo(() => {
     return totalIncome - totalExpenses;
   }, [totalIncome, totalExpenses]);
@@ -118,7 +113,7 @@ export const GlobalProvider = ({ children }) => {
     try {
       const response = await axios.post(`${BASE_URL}add-income`, incomeData);
       if (response.data) {
-        setIncomes((prev) => Array.isArray(prev) ? [...prev, response.data] : [response.data]);
+        setIncomes((prev) => [...prev, response.data]);
       }
     } catch (err) {
       setError(err.response?.data?.message || "Failed to add income");
@@ -134,7 +129,7 @@ export const GlobalProvider = ({ children }) => {
     try {
       const response = await axios.post(`${BASE_URL}add-expense`, expenseData);
       if (response.data) {
-        setExpenses((prev) => Array.isArray(prev) ? [...prev, response.data] : [response.data]);
+        setExpenses((prev) => [...prev, response.data]);
       }
     } catch (err) {
       setError(err.response?.data?.message || "Failed to add expense");
@@ -146,42 +141,44 @@ export const GlobalProvider = ({ children }) => {
     setError(null);
   }, []);
 
-  // Context value with ALL needed properties
+  // ✅ Include setAuthToken in context
   const contextValue = useMemo(() => ({
-    // Data arrays
-    incomes: Array.isArray(incomes) ? incomes : [],
-    expenses: Array.isArray(expenses) ? expenses : [],
-    
-    // Calculated values (FIXED: Added totalBalance)
+    // Data
+    incomes,
+    expenses,
     totalIncome,
     totalExpenses,
-    totalBalance, // THIS WAS MISSING!
-    
-    // Action functions
+    totalBalance,
+
+    // Actions
     getIncomes,
     getExpenses,
     addIncome,
     addExpense,
     deleteIncome,
     deleteExpense,
-    
+
     // Utility
     clearError,
     error,
+
+    // ✅ Auth
+    setAuthToken,
   }), [
-    incomes, 
-    expenses, 
-    totalIncome, 
+    incomes,
+    expenses,
+    totalIncome,
     totalExpenses,
-    totalBalance, // ADDED to dependencies
-    getIncomes, 
-    getExpenses, 
-    addIncome, 
-    addExpense, 
-    deleteIncome, 
+    totalBalance,
+    getIncomes,
+    getExpenses,
+    addIncome,
+    addExpense,
+    deleteIncome,
     deleteExpense,
     clearError,
-    error
+    error,
+    setAuthToken,
   ]);
 
   return (
@@ -193,7 +190,7 @@ export const GlobalProvider = ({ children }) => {
 
 export const useGlobalContext = () => {
   const context = useContext(GlobalContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useGlobalContext must be used within a GlobalProvider');
   }
   return context;
