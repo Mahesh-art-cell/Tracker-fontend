@@ -7,22 +7,19 @@ import { dollar } from "../../utils/Icons";
 import Chart from "../Chart/Chart";
 
 function Dashboard() {
-  // Add error boundary and safer destructuring
-  const context = useGlobalContext();
-  
-  // Safely destructure with fallbacks
+  // FIXED: Safer destructuring with fallbacks
   const {
     totalExpenses = 0,
     incomes = [],
     expenses = [],
     totalIncome = 0,
-    totalBalance = 0,
+    totalBalance = 0, // Now available from context
     getIncomes,
     getExpenses,
-  } = context || {};
+  } = useGlobalContext();
 
   useEffect(() => {
-    // Add safety checks for functions
+    // FIXED: Check if functions exist before calling
     if (typeof getIncomes === 'function') {
       getIncomes();
     }
@@ -31,26 +28,23 @@ function Dashboard() {
     }
   }, [getIncomes, getExpenses]);
 
-  // Add safety checks for arrays before using map
+  // FIXED: Safe array operations
   const safeIncomes = Array.isArray(incomes) ? incomes : [];
   const safeExpenses = Array.isArray(expenses) ? expenses : [];
 
-  const minIncome = safeIncomes.length ? Math.min(...safeIncomes.map(item => Number(item?.amount) || 0)) : 0;
-  const maxIncome = safeIncomes.length ? Math.max(...safeIncomes.map(item => Number(item?.amount) || 0)) : 0;
+  const minIncome = safeIncomes.length 
+    ? Math.min(...safeIncomes.map(item => Number(item?.amount) || 0)) 
+    : 0;
+  const maxIncome = safeIncomes.length 
+    ? Math.max(...safeIncomes.map(item => Number(item?.amount) || 0)) 
+    : 0;
 
-  const minExpense = safeExpenses.length ? Math.min(...safeExpenses.map(item => Number(item?.amount) || 0)) : 0;
-  const maxExpense = safeExpenses.length ? Math.max(...safeExpenses.map(item => Number(item?.amount) || 0)) : 0;
-
-  // Add loading state if context is not ready
-  if (!context) {
-    return (
-      <DashboardStyled>
-        <InnerLayout>
-          <div>Loading...</div>
-        </InnerLayout>
-      </DashboardStyled>
-    );
-  }
+  const minExpense = safeExpenses.length 
+    ? Math.min(...safeExpenses.map(item => Number(item?.amount) || 0)) 
+    : 0;
+  const maxExpense = safeExpenses.length 
+    ? Math.max(...safeExpenses.map(item => Number(item?.amount) || 0)) 
+    : 0;
 
   return (
     <DashboardStyled>
@@ -61,19 +55,19 @@ function Dashboard() {
           <div className="summary-card">
             <h2>Total Income</h2>
             <p className="amount" style={{ color: "#42AD00" }}>
-              {dollar} {totalIncome || 0}
+              {dollar} {totalIncome}
             </p>
           </div>
           <div className="summary-card">
             <h2>Total Expense</h2>
             <p className="amount" style={{ color: "#D12C2C" }}>
-              {dollar} {totalExpenses || 0}
+              {dollar} {totalExpenses}
             </p>
           </div>
           <div className="summary-card highlight">
             <h2>Total Balance</h2>
             <p className="amount" style={{ color: "#2c7ad1" }}>
-              {dollar} {totalBalance || 0}
+              {dollar} {totalBalance}
             </p>
           </div>
         </div>
