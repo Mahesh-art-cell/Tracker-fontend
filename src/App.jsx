@@ -38,7 +38,7 @@
 // export default App;
 
 // src/App.jsx
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {  Routes, Route ,useLocation } from "react-router-dom";
 import Tracker from "./Tracker";
 import Dashboard from "./Components/Dashboard/Dashboard";
 import Income from "./Components/Income/Income";
@@ -46,10 +46,18 @@ import Expenses from "./Components/Expenses/Expenses";
 import Home from "./Landingpage/Home";
 import Signup from "./Landingpage/Signup";
 import Login from "./Landingpage/Login";
+import { useEffect } from "react";
 
 function App() {
+  const location = useLocation();
+
+  useEffect(()=>{
+    console.log(location.pathname)
+  },[])
+
+
   return (
-    <Router>
+    
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -61,7 +69,7 @@ function App() {
           <Route path="expenses" element={<Expenses />} />
         </Route>
       </Routes>
-    </Router>
+   
   );
 }
 
