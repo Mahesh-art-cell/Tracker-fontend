@@ -1,8 +1,4 @@
 
-
-
-
-
 import React, { createContext, useContext, useEffect, useState } from "react";
 import axiosInstance from "../axios";
 
@@ -117,7 +113,7 @@ export const GlobalProvider = ({ children }) => {
   const totalIncome = incomes.reduce((acc, curr) => acc + Number(curr.amount || 0), 0);
   const totalExpenses = expenses.reduce((acc, curr) => acc + Number(curr.amount || 0), 0);
   const totalBalance = totalIncome - totalExpenses;
-
+  
   // ✅ Clear Error Function
   const clearError = () => {
     setError(null);
