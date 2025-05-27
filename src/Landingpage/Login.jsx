@@ -1,89 +1,105 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { auth, signInWithEmailAndPassword } from '../firebase';
-import { useGlobalContext } from '../context/GlobalContext'; // Make sure this exists and works!
-import './Login.css';
+
+
+// // src/Login.js
+// // src/pages/Login.js
+// import React, { useState, useContext, useEffect } from "react";
+// import { useGlobalContext } from "../context/GlobalContext";
+// import { useNavigate } from "react-router-dom";
+
+// const Login = () => {
+//   const { loginUser, error, setError } = useGlobalContext();
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const navigate = useNavigate();
+
+//   const handleLogin = async (e) => {
+//     e.preventDefault();
+//     await loginUser({ email, password });
+//     navigate("/dashboard"); // update with your protected route
+//   };
+
+//   useEffect(() => {
+//     if (email || password) setError(null);
+//   }, [email, password]);
+
+//   return (
+//     <form onSubmit={handleLogin}>
+//       <h2>Login</h2>
+//       {error && <p style={{ color: "red" }}>{error}</p>}
+//       <input
+//         type="email"
+//         placeholder="Email"
+//         value={email}
+//         onChange={(e) => setEmail(e.target.value)}
+//         required
+//       />
+//       <input
+//         type="password"
+//         placeholder="Password"
+//         value={password}
+//         onChange={(e) => setPassword(e.target.value)}
+//         required
+//       />
+//       <button type="submit">Login</button>
+//     </form>
+//   );
+// };
+
+// export default Login;
+
+
+// src/pages/Login.js
+import React, { useState, useEffect } from "react";
+import { useGlobalContext } from "../context/GlobalContext";
+import { useNavigate, Link } from "react-router-dom";
+import "./Login.css";
+
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const { loginUser, error, clearError } = useGlobalContext();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
-
-  // get setAuthToken function from your global context
-  const { setAuthToken } = useGlobalContext();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(''); // Clear previous errors
-
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      const token = await user.getIdToken();  // get Firebase auth token
-      
-      setAuthToken(token);  // save token globally (e.g., for API auth)
-      navigate('/dashboard');  // redirect after login
-
+      await loginUser({ email, password });
+      navigate("/dashboard");
+      setEmail("");
+      setPassword("");
     } catch (err) {
-      console.error("Login failed:", err);
-      setError('Invalid Credentials! Try again.');
+      // Handled in context
     }
   };
 
-  const handleLoginGuest = () => {
-    console.log("Guest login successful!");
-    navigate('/dashboard');
-  };
+  useEffect(() => {
+    if (email || password) clearError();
+  }, [email, password, clearError]);
 
   return (
-    <div className="login-form">
+    <form onSubmit={handleLogin}>
       <h2>Login</h2>
-      {error && <p className="error-message">{error}</p>}
-
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Enter Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          aria-label="Email"
-        />
-
-        <input
-          type="password"
-          placeholder="Enter Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          aria-label="Password"
-        />
-
-        <button type="submit" className="login-btn">Login</button>
-      </form>
-
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
+      <button type="submit">Login</button>
       <p>
-        Don't have an account? <a href="/signup">Sign up</a>
+        Don't have an account? <Link to="/signup">Sign up</Link>
       </p>
-
-      <button
-        onClick={handleLoginGuest}
-        style={{
-          color: "blue",
-          display: "block",
-          margin: "20px auto",
-          padding: "10px 20px",
-          fontSize: "16px",
-          textAlign: "center",
-          cursor: "pointer",
-          background: "none",
-          border: "none"
-        }}
-      >
-        Login Guest
-      </button>
-    </div>
+    </form>
   );
 };
 

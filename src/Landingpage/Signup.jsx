@@ -1,81 +1,113 @@
-// src/Signup.js
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { auth, createUserWithEmailAndPassword } from '../firebase';
-import './Signup.css'
+
+
+// // src/pages/Signup.js
+// import React, { useState, useContext, useEffect } from "react";
+// import { useGlobalContext } from "../context/GlobalContext";
+// import { useNavigate } from "react-router-dom";
+
+// const Signup = () => {
+//   const { registerUser, error, setError } = useGlobalContext();
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const navigate = useNavigate();
+
+//   const handleRegister = async (e) => {
+//     e.preventDefault();
+//     await registerUser({ email, password });
+//     navigate("/dashboard"); // update with your protected route
+//   };
+
+//   useEffect(() => {
+//     if (email || password) setError(null);
+//   }, [email, password]);
+
+//   return (
+//     <form onSubmit={handleRegister}>
+//       <h2>Signup</h2>
+//       {error && <p style={{ color: "red" }}>{error}</p>}
+//       <input
+//         type="email"
+//         placeholder="Email"
+//         value={email}
+//         onChange={(e) => setEmail(e.target.value)}
+//         required
+//       />
+//       <input
+//         type="password"
+//         placeholder="Password"
+//         value={password}
+//         onChange={(e) => setPassword(e.target.value)}
+//         required
+//       />
+//       <button type="submit">Register</button>
+//     </form>
+//   );
+// };
+
+// export default Signup;
+
+
+// src/pages/Signup.js
+import React, { useState, useEffect } from "react";
+import { useGlobalContext } from "../context/GlobalContext";
+import { useNavigate, Link } from "react-router-dom";
+import "./Signup.css";
+
+
 const Signup = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const { registerUser, error, clearError } = useGlobalContext();
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSignup = async () => {
+  const handleRegister = async (e) => {
+    e.preventDefault();
     try {
-      if (!isValidPassword(password)) {
-        setError('Password must be at least 8 characters, include uppercase, lowercase, number, and special character.');
-        return;
-      }
-
-      await createUserWithEmailAndPassword(auth, email, password);
-      navigate('/dashboard');
+      await registerUser({ username, email, password });
+      navigate("/Login");
+      setUsername("");
+      setEmail("");
+      setPassword("");
     } catch (err) {
-      setError(err.message);
+      // Handled in context
     }
   };
-  const handleloginguest = async () => {
-    try {
-        console.log("Guest login successful!");
-        window.location.href = "/dashboard"; 
-    } catch (error) {
-        console.error("Guest login failed:", error);
-    }
-};
 
-
-  const isValidPassword = (password) => {
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%?&])[A-Za-z\d@$!%?&]{8,}$/;
-    return passwordRegex.test(password);
-  };
+  useEffect(() => {
+    if (username || email || password) clearError();
+  }, [username, email, password, clearError]);
 
   return (
-    <div className="signup-form">
-      <h2>Sign Up</h2>
-      {error && <p className="error-message">{error}</p>}
-
+    <form onSubmit={handleRegister}>
+      <h2>Signup</h2>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      <input
+        type="text"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        required
+      />
       <input
         type="email"
-        placeholder="Enter Email"
+        placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
       />
       <input
         type="password"
-        placeholder="Enter Password"
+        placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
       />
-
-      <button className="signup-btn" onClick={handleSignup}>
-        Sign Up
-      </button>
-
-      <p>Already have an account? <a href="/login">Login</a></p>
-      <button
-  onClick={handleloginguest}
-  style={{
-    color: "blue",
-    display: "block",
-    margin: "20px auto",
-    padding: "10px 20px",
-    fontSize: "16px",
-    textAlign: "center"
-  }}
->
-  Login Guest
-</button>
-    </div>
+      <button type="submit">Register</button>
+      <p>
+        Already have an account? <Link to="/login">Login</Link>
+      </p>
+    </form>
   );
 };
 
