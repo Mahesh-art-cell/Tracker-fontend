@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "https://tracker-beckend.onrender.com/api/v1",
+  // baseURL: "https://tracker-beckend.onrender.com/api/v1",
+   baseURL: "http://localhost:3000/api/v1",
 });
 
 // Automatically attach token to every request
