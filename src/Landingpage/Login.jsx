@@ -51,7 +51,7 @@
 // src/pages/Login.js
 import React, { useState, useEffect } from "react";
 import { useGlobalContext } from "../context/GlobalContext";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link ,useLocation} from "react-router-dom";
 import "./Login.css";
 
 
@@ -60,6 +60,11 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+  
+    useEffect(()=>{
+      console.log(location)
+    },[])
 
   const handleLogin = async (e) => {
     e.preventDefault();
