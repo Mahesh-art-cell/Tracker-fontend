@@ -93,7 +93,7 @@ const Expenses = () => {
             required
           />
           <textarea
-            placeholder="Description (optional)"
+            placeholder="Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
