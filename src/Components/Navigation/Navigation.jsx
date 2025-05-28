@@ -12,7 +12,7 @@ function Navigation() {
       <div className="user-con">
         <img src={userAvatar} alt="User avatar" />
         <div className="text">
-          <h2>Bhargavi</h2>
+          <h2>Tracker</h2>
           <br />
           <br />
         </div>
@@ -43,7 +43,7 @@ function Navigation() {
 
 const NavStyled = styled.nav`
   padding: 2rem 1.5rem;
-  width: 374px;
+  width: 280px;
   height: 100%;
   background: rgba(252, 246, 249, 0.78);
   border: 3px solid #ffffff;
